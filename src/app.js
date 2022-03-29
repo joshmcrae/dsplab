@@ -1,13 +1,3 @@
-import { basicSetup, EditorState, EditorView } from "@codemirror/basic-setup";
-import { javascript } from "@codemirror/lang-javascript"
-import { oneDark } from "@codemirror/theme-one-dark"
+import App from "./js/App"
 
-const state = EditorState.create({
-    doc: ``,
-    extensions: [basicSetup, javascript(), oneDark],
-})
-
-const view = new EditorView({
-    parent: document.getElementById('editor'),
-    state
-})
+const app = new App('editor', 'scope')
