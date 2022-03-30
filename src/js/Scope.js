@@ -6,8 +6,18 @@ export default class Scope {
     constructor(scopeId) {
         this.canvas = document.getElementById(scopeId)
         this.context = this.canvas.getContext('2d')
+        this.data = {}
 
         this.resize()
+    }
+
+    onClick(callback) {
+        this.canvas.onclick = callback
+    }
+
+    setData(name, data) {
+        this.data[name] = data
+        this.draw()
     }
 
     resize() {
@@ -19,12 +29,17 @@ export default class Scope {
 
     draw() {
         this.drawBackground()
-        this.plotData((new Array(1000)).fill(0).map((v, i) => Math.sin(i / 10)), 'red')
+
+        for (const [key, value] of Object.entries(this.data)) {
+            this.plotData(value, 'red')
+        }
     }
 
     drawBackground() {
         const width = this.canvas.width
         const height = this.canvas.height
+
+        this.context.clearRect(0, 0, width, height)
 
         this.context.strokeStyle = styles.lightGrey
         this.context.beginPath()
