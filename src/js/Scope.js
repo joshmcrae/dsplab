@@ -31,7 +31,7 @@ export default class Scope {
         this.drawBackground()
 
         for (const [key, value] of Object.entries(this.data)) {
-            this.plotData(value, 'red')
+            this.plotData(value, key)
         }
     }
 
