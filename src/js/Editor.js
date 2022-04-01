@@ -6,6 +6,12 @@ const preset = `// generate input waveform
 function generate() {
   return (new Array(1000)).fill(0).map((v, i) => Math.sin(i / 10))
 }
+
+function process(input, output, bufferSize) {
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.atan(input[i] * 9) * 0.3
+  }
+}
 `
 
 export default class Editor {
@@ -21,5 +27,9 @@ export default class Editor {
 
     getContent() {
         return this.view.state.doc.toString()
+    }
+
+    onBlur(callback) {
+        this.view.contentDOM.onblur = callback
     }
 }

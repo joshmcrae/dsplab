@@ -8,34 +8,34 @@ export default class Scope {
         this.context = this.canvas.getContext('2d')
         this.data = {}
 
-        this.resize()
-    }
+        this.zoom = 1
+        this.offset = 0
 
-    onClick(callback) {
-        this.canvas.onclick = callback
+        this.resize()
+        this.canvas.onmousedown = (e) => this._startDrag(e)
     }
 
     setData(name, data) {
         this.data[name] = data
-        this.draw()
+        this._draw()
     }
 
     resize() {
         this.canvas.width = this.canvas.clientWidth
         this.canvas.height = this.canvas.clientHeight
 
-        this.draw()
+        this._draw()
     }
 
-    draw() {
-        this.drawBackground()
+    _draw() {
+        this._drawBackground()
 
         for (const [key, value] of Object.entries(this.data)) {
-            this.plotData(value, key)
+            this._plotData(value, key)
         }
     }
 
-    drawBackground() {
+    _drawBackground() {
         const width = this.canvas.width
         const height = this.canvas.height
 
@@ -49,10 +49,10 @@ export default class Scope {
         this.context.stroke()
     }
 
-    plotData(data, color) {
+    _plotData(data, color) {
         const width = this.canvas.width
         const height = this.canvas.height
-        const increments = width / data.length
+        const increments = width / data.length * this.zoom
         const scale = height / 2 / 2
 
         this.context.strokeStyle = color
@@ -64,5 +64,26 @@ export default class Scope {
         })
 
         this.context.stroke()
+    }
+
+    _startDrag(e) {
+        const startX = e.screenX
+        const startY = e.screenY
+        const initZoom = this.zoom
+
+        const onMouseMove = (e) => {
+            this.offset = Math.min(e.screenX - startX, 0)
+            this.zoom = Math.max(initZoom + (e.screenY - startY) / 10, 1)
+
+            this._draw()
+        }
+
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove)
+            document.removeEventListener('mouseup', onMouseUp)
+        }
+
+        document.addEventListener('mousemove', onMouseMove)
+        document.addEventListener('mouseup', onMouseUp)
     }
 }

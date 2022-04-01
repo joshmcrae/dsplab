@@ -8,14 +8,13 @@ export default class App {
     constructor(editorId, scopeId) {
         this.editor = new Editor(editorId)
         this.scope = new Scope(scopeId)
-        this.scope.draw()
 
         this.program = null
         this.inputData = []
         this.outputData = []
 
         window.onresize = () => this.resize()
-        this.scope.onClick(() => this.runCode())
+        this.editor.onBlur(() => this.runCode())
     }
 
     resize() {
