@@ -9,6 +9,7 @@ export default class Scope {
         this.data = {}
 
         this.zoom = 1
+        this.anchor = 0
         this.offset = 0
 
         this.resize()
@@ -50,17 +51,18 @@ export default class Scope {
     }
 
     _plotData(data, color) {
-        const width = this.canvas.width
         const height = this.canvas.height
-        const increments = width / data.length * this.zoom
+        const increments = this._pointToPixel(1)
         const scale = height / 2 / 2
+        const offset = Math.max(0, this._pointToPixel(this.anchor) - this.offset)
 
         this.context.strokeStyle = color
         this.context.beginPath()
 
         this.context.moveTo(0, height / 2)
+
         data.forEach((value, i) => {
-            this.context.lineTo(increments * i, value * -scale + height / 2)
+            this.context.lineTo(increments * i - offset, value * -scale + height / 2)
         })
 
         this.context.stroke()
@@ -71,10 +73,13 @@ export default class Scope {
         const startY = e.screenY
         const initZoom = this.zoom
 
-        const onMouseMove = (e) => {
-            this.offset = Math.min(e.screenX - startX, 0)
-            this.zoom = Math.max(initZoom + (e.screenY - startY) / 10, 1)
+        this.offset = e.clientX - e.target.getBoundingClientRect().x
+        this.anchor = this._pixelToPoint(this.offset)
 
+        e.preventDefault()
+
+        const onMouseMove = (e) => {
+            this.zoom = Math.max(initZoom + (e.screenY - startY) / 10, 1)
             this._draw()
         }
 
@@ -85,5 +90,23 @@ export default class Scope {
 
         document.addEventListener('mousemove', onMouseMove)
         document.addEventListener('mouseup', onMouseUp)
+    }
+
+    _getDataLength() {
+        const keys = Object.keys(this.data)
+
+        if (!keys.length) {
+            return 0
+        }
+
+        return this.data[keys[0]].length
+    }
+
+    _pointToPixel(point) {
+        return this.canvas.width / this._getDataLength() * this.zoom * point
+    }
+
+    _pixelToPoint(pixel) {
+        return pixel / this.canvas.width * this._getDataLength() / this.zoom
     }
 }
