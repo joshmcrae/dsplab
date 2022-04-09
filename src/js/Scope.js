@@ -11,6 +11,7 @@ export default class Scope {
         this.zoom = 1
         this.anchor = 0
         this.offset = 0
+        this.adjustment = 0
 
         this.resize()
         this.canvas.onmousedown = (e) => this._startDrag(e)
@@ -62,7 +63,7 @@ export default class Scope {
         this.context.moveTo(0, height / 2)
 
         data.forEach((value, i) => {
-            this.context.lineTo(increments * i - offset, value * -scale + height / 2)
+            this.context.lineTo(increments * i - offset + this.adjustment, value * -scale + height / 2)
         })
 
         this.context.stroke()
@@ -72,20 +73,26 @@ export default class Scope {
         const startX = e.screenX
         const startY = e.screenY
         const initZoom = this.zoom
+        let initOffset = e.clientX - e.target.getBoundingClientRect().x;
 
-        this.offset = e.clientX - e.target.getBoundingClientRect().x
-        this.anchor = this._pixelToPoint(this.offset)
+        this.anchor = Math.max(0, this._viewportToPoint(initOffset))
+        this.offset = initOffset
 
         e.preventDefault()
 
         const onMouseMove = (e) => {
             this.zoom = Math.max(initZoom + (e.screenY - startY) / 10, 1)
+            this.adjustment = Math.max(0, this.canvas.width - (this._pointToPixel(this._getDataLength() - this.anchor) + this.offset))
+
             this._draw()
         }
 
         const onMouseUp = () => {
             document.removeEventListener('mousemove', onMouseMove)
             document.removeEventListener('mouseup', onMouseUp)
+
+            this.offset += this.adjustment
+            this.adjustment = 0
         }
 
         document.addEventListener('mousemove', onMouseMove)
@@ -108,5 +115,9 @@ export default class Scope {
 
     _pixelToPoint(pixel) {
         return pixel / this.canvas.width * this._getDataLength() / this.zoom
+    }
+
+    _viewportToPoint(pixel) {
+        return Math.max(0, this.anchor - this._pixelToPoint(this.offset)) + this._pixelToPoint(pixel)
     }
 }
