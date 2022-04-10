@@ -10,6 +10,9 @@ export default class Program {
         )
 
         const functionCode = `
+            const createParam = (name, value, min, max) => this.params[name] = { value, min, max }
+            const getParam = (name) => this.params[name]?.value || 0
+        
             ${code}
             
             if (typeof generate === 'function') { this.generator = generate }
@@ -18,7 +21,6 @@ export default class Program {
 
         const f = new Function(functionCode)
         f.apply(program)
-        f()
 
         return program
     }
@@ -26,6 +28,7 @@ export default class Program {
     constructor(generator, processor) {
         this.generator = generator
         this.processor = processor
+        this.params = {}
     }
 
     getGenerator() {
