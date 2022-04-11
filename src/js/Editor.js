@@ -27,6 +27,18 @@ export default class Editor {
         })
     }
 
+    setContent(code) {
+        const transaction = this.view.state.update({
+            changes: {
+                from: 0,
+                to: this.view.state.doc.length,
+                insert: code
+            }
+        })
+
+        this.view.update([transaction])
+    }
+
     getContent() {
         return this.view.state.doc.toString()
     }

@@ -18,9 +18,15 @@ export default class App {
         this.outputData = []
 
         window.onresize = () => this.resize()
-        this.editor.onBlur(() => this.runCode())
+
+        this.editor.onBlur(() => {
+            this._saveCode()
+            this.runCode()
+        })
+
         this.params.onParamChanged(() => this.analyze())
 
+        this._restoreCode()
         this.runCode()
     }
 
@@ -52,5 +58,17 @@ export default class App {
         }
 
         this.scope.setData(OUTPUT_COLOR, this.outputData)
+    }
+
+    _saveCode() {
+        window.localStorage.setItem('code', this.editor.getContent())
+    }
+
+    _restoreCode() {
+        const code = window.localStorage.getItem('code')
+
+        if (code) {
+            this.editor.setContent(code)
+        }
     }
 }
