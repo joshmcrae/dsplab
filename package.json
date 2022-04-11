@@ -10,6 +10,7 @@
     "@codemirror/theme-one-dark": "^0.19.1"
   },
   "scripts": {
-    "dev": "parcel src/app.html"
+    "dev": "parcel src/app.html --dist-dir dev",
+    "build": "parcel build src/app.html --dist-dir doc"
   }
 }
