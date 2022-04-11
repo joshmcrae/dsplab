@@ -3,7 +3,8 @@ export default class Params {
         this.container = document.getElementById(paramId)
         this.program = null
         this.callback = null
-    }
+        this.paramState = {}}
+
 
     setProgram(program) {
         this.program = program
@@ -26,15 +27,31 @@ export default class Params {
             input.max = this.program.params[param].max
             input.step = (input.max - input.min) / 100
 
+            if (this.paramState[param]) {
+                input.value = this.paramState[param]
+            } else {
+                input.value = this.program.params[param].value
+            }
+
             input.oninput = (e) => {
                 this.program.params[param].value = e.target.value
+                this.paramState[param] = e.target.value
 
                 if (this.callback) {
                     this.callback()
                 }
             }
 
-            this.container.append(input)
+            const control = document.createElement('div')
+
+            const label = document.createElement('label')
+            label.innerText = param
+            label.className = 'block capitalize'
+
+            control.append(label, input)
+
+            this.container.append(control)
+            input.dispatchEvent(new Event('input'))
         })
     }
 }
